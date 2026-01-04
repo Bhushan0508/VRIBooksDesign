@@ -90,7 +90,10 @@
   vertical-align: top;
   border-top: 1px solid rgba(0,0,0,0.05);
 }
-.metaKey{ color: #6b7280; width: 150px; }
+.metaKey{ color: #6b7280; width: 150px; font-weight:600 }
+.metaValue{ color: #111827 }
+.previewLink{ display:inline-flex; align-items:center; gap:8px; color:#0f4c81; text-decoration:none; font-weight:600 }
+.previewSize{ color: #6b7280; font-size:0.95rem }
 
 .shareButtons{
   margin-top: 10px;
