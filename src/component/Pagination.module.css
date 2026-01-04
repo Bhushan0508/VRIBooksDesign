@@ -1,0 +1,19 @@
+/* Pagination styling starts from here */
+.paginationBox{
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    column-gap: 4px;
+    margin-bottom: 2rem;
+}
+.paginationBox button{
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    background-color: #42749c;
+    color: #fff;
+    padding: 8px;
+}
+.active{
+    background-color: #0f82e0 !important;
+}

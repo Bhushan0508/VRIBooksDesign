@@ -1,0 +1,31 @@
+.inputBox {
+    max-width: 350px;
+    width: 100%;
+    transition: transform 0.3s ease;
+}
+
+.inputBox:hover {
+    transform: translateY(-4px);
+}
+
+.inputBox input {
+    width: 100%;
+    outline: none;
+    border-radius: 8px;
+    border: 1px solid rgb(226, 223, 223);
+    height: 2rem;
+    padding-left: 0.5rem;
+    background-color: rgb(248, 244, 244);
+    font-size: 1rem;
+}
+
+.inputBox input:focus {
+    /* box-shadow: 4px 4px 6px #1f85da; */
+    border: 1px solid #1c86dd;
+
+}
+@media(max-width:768px){
+   .inputBox{
+        max-width: 100%;
+   }
+}
