@@ -46,6 +46,25 @@
   color: #222;
   margin-top: 1rem;
 }
+.price{
+  color: #111827;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-top: 6px;
+}
+.cartSection{
+  margin-top: 12px;
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.qtyInput{
+  width:64px;
+  padding:6px 8px;
+  border:1px solid rgba(0,0,0,0.08);
+  border-radius:6px;
+}
+.previewIcon img{ height:18px; margin-right:6px; vertical-align:middle }
 .actions{
   margin-top: 12px;
   display: flex;
