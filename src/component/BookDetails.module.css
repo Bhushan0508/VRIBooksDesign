@@ -1,0 +1,80 @@
+/* Layout for book details page */
+.detailsWrapper{
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 1rem 1.25rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 8px 30px rgba(18,38,63,0.06);
+}
+.backLink{
+  color: #1f85da;
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+.detailsGrid{
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+.coverBox img{
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+.metaBox{
+  font-size: 0.95rem;
+  color: #333;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.title{
+  color: #0f4c81;
+  font-size: 2rem;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.15;
+  font-weight: 700;
+}
+.description{
+  line-height: 1.8;
+  color: #222;
+  margin-top: 1rem;
+}
+.actions{
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.btn{
+  background: #1f85da;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-block;
+}
+.metaTable{
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 8px;
+}
+.metaTable td{
+  padding: 6px 8px;
+  vertical-align: top;
+  border-top: 1px solid rgba(0,0,0,0.05);
+}
+.metaKey{ color: #6b7280; width: 150px; }
+
+@media (max-width: 768px){
+  .detailsGrid{
+    grid-template-columns: 1fr;
+  }
+}
