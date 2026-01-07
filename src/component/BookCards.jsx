@@ -3,7 +3,6 @@ import style from './BookCards.module.css';
 import Pagination from "./Pagination";
 import Modal from './Modal';
 import { Link } from "react-router-dom";
-import purchaseLinksData from '../purchaseLinksMap.json';
 // import infoIcon from './public/image/infoIcon.jpg'
 
 function BookCards({ query, apiData, selected, sortBy }) {
@@ -17,10 +16,12 @@ function BookCards({ query, apiData, selected, sortBy }) {
         return isbn.replace(/[-\s]/g, '');
     };
 
-    // Function to get purchase links by ISBN
+    // Function to get purchase links by ISBN from sessionStorage
     const getPurchaseLinks = (isbn) => {
         if (!isbn) return [];
 
+        const purchaseLinksData = JSON.parse(sessionStorage.getItem('purchaseLinksMap') || '{}');
+        
         // Try exact match first
         let links = purchaseLinksData[isbn];
 

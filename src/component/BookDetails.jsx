@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import DOMPurify from 'dompurify'
 import styles from './BookDetails.module.css'
-import purchaseLinksData from '../purchaseLinksMap.json'
+import purchaseLinksMap from '../purchaseLinksMap.json'
 
 function BookDetails () {
     const { sku } = useParams()
@@ -14,6 +14,7 @@ function BookDetails () {
     const [allBooks, setAllBooks] = useState([])
     const [isZoomed, setIsZoomed] = useState(false)
     const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 })
+    const [showMagnifier, setShowMagnifier] = useState(false)
 
     // Helper: Normalize ISBN for matching
     const normalizeISBN = (isbn) => {
@@ -21,10 +22,12 @@ function BookDetails () {
         return isbn.replace(/[-\s]/g, '');
     };
 
-    // Helper: Get purchase links by ISBN
+    // Helper: Get purchase links by ISBN from sessionStorage
     const getPurchaseLinks = (isbn) => {
         if (!isbn) return [];
 
+        const purchaseLinksData = JSON.parse(sessionStorage.getItem('purchaseLinksMap') || '{}');
+        
         // Try exact match
         let links = purchaseLinksData[isbn];
 
@@ -137,6 +140,8 @@ function BookDetails () {
                 // Store in sessionStorage
                 sessionStorage.setItem('booksData', JSON.stringify(data));
                 sessionStorage.setItem('booksDataTimestamp', now.toString());
+                // Store purchase links in sessionStorage
+                sessionStorage.setItem('purchaseLinksMap', JSON.stringify(purchaseLinksMap));
 
                 setAllBooks(data)
                 const found = data.find(b => String(b.SKU) === String(sku))
@@ -174,18 +179,15 @@ function BookDetails () {
                     {images.length > 0 && (
                         <>
                             <div
-                                className={`${styles.imageZoomContainer} ${isZoomed ? styles.zoomed : ''}`}
-                                onMouseEnter={() => setIsZoomed(true)}
-                                onMouseLeave={() => setIsZoomed(false)}
+                                className={styles.imageZoomContainer}
+                                onMouseEnter={() => setShowMagnifier(true)}
+                                onMouseLeave={() => setShowMagnifier(false)}
                                 onMouseMove={handleMouseMove}
                             >
                                 <img
                                     src={images[selectedImage]}
                                     alt={book.Title}
                                     className={styles.mainImage}
-                                    style={isZoomed ? {
-                                        transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`
-                                    } : {}}
                                 />
                             </div>
                             {images.length > 1 && (
@@ -204,6 +206,21 @@ function BookDetails () {
                         </>
                     )}
                 </div>
+
+                {/* MAGNIFIER PANEL - Shows enlarged view on hover */}
+                {showMagnifier && images.length > 0 && (
+                    <div className={styles.magnifierPanel}>
+                        <div
+                            className={styles.magnifiedImage}
+                            style={{
+                                backgroundImage: `url(${images[selectedImage]})`,
+                                backgroundPosition: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                                backgroundSize: '250%',
+                                backgroundRepeat: 'no-repeat'
+                            }}
+                        />
+                    </div>
+                )}
 
                 {/* MIDDLE COLUMN - Content */}
                 <div className={styles.contentSection}>

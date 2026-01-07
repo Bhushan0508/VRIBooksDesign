@@ -3,6 +3,7 @@ import BookCards from './component/BookCards'
 import SearchBar from './component/SearchBar'
 import SelectOptions from './component/SelectOptions';
 import styles from './App.module.css'
+import purchaseLinksMap from './purchaseLinksMap.json'
 
 function Home(){
     
@@ -36,6 +37,8 @@ function Home(){
         // Store in sessionStorage
         sessionStorage.setItem('booksData', JSON.stringify(data));
         sessionStorage.setItem('booksDataTimestamp', now.toString());
+        // Store purchase links in sessionStorage
+        sessionStorage.setItem('purchaseLinksMap', JSON.stringify(purchaseLinksMap));
 
         setApiData(data);
       }catch(err){

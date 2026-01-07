@@ -37,22 +37,34 @@
   border-radius: 8px;
   box-shadow: 0 6px 20px rgba(0,0,0,0.15);
   margin-bottom: 1rem;
-  cursor: zoom-in;
-}
-
-.imageZoomContainer.zoomed {
-  cursor: zoom-out;
+  cursor: crosshair;
 }
 
 .mainImage {
   width: 100%;
   height: auto;
   display: block;
-  transition: transform 0.3s ease;
 }
 
-.imageZoomContainer.zoomed .mainImage {
-  transform: scale(2.5);
+/* Magnifier Panel - Amazon Style */
+.magnifierPanel {
+  position: absolute;
+  left: 340px;
+  top: 0;
+  width: 500px;
+  height: 600px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  overflow: hidden;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.magnifiedImage {
+  width: 100%;
+  height: 100%;
 }
 
 .thumbnailGrid {
@@ -273,6 +285,14 @@
   }
 }
 
+@media (max-width: 1024px) {
+  .magnifierPanel {
+    width: 400px;
+    height: 500px;
+    left: 300px;
+  }
+}
+
 @media (max-width: 768px) {
   .detailsWrapper {
     padding: 0.75rem 1rem;
@@ -286,6 +306,11 @@
   .imageSection,
   .buySection {
     position: static;
+  }
+
+  /* Hide magnifier on mobile */
+  .magnifierPanel {
+    display: none;
   }
 
   /* On mobile, reorder: images, buy options, then content */
