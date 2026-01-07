@@ -100,9 +100,49 @@
     background-color: transparent;
     border-radius: 50%;
 }
+/* Purchase Buttons */
+.purchaseButtons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 10px;
+    justify-content: center;
+    border-top: 1px solid #e5e7eb;
+    margin-top: 8px;
+}
+
+.purchaseButton {
+    background-color: #1f85da;
+    color: #ffffff;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    text-align: center;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.purchaseButton:hover {
+    background-color: #1567b3;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(31, 133, 218, 0.3);
+}
+
+.purchaseButton:active {
+    transform: translateY(0);
+}
+
 @media(max-width:768px) {
     .cards {
         max-width: 100%;
+    }
+
+    .purchaseButton {
+        font-size: 0.55rem;
+        padding: 5px 10px;
     }
 }
 

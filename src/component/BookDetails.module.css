@@ -1,6 +1,6 @@
 /* Layout for book details page */
 .detailsWrapper{
-  max-width: 1100px;
+  max-width: 1400px;
   margin: 2rem auto;
   padding: 1rem 1.25rem;
   background: #fff;
@@ -14,6 +14,58 @@
   margin-bottom: 1rem;
   font-weight: 600;
 }
+
+/* 3-Column Grid Layout */
+.threeColumnGrid {
+  display: grid;
+  grid-template-columns: 320px 1fr 340px;
+  gap: 2rem;
+  align-items: start;
+  margin-top: 1.5rem;
+}
+
+/* Image Gallery Section */
+.imageSection {
+  position: sticky;
+  top: 20px;
+}
+
+.mainImage {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  margin-bottom: 1rem;
+  cursor: pointer;
+}
+
+.thumbnailGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 8px;
+}
+
+.thumbnail {
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.thumbnail:hover {
+  border-color: #1f85da;
+  transform: scale(1.05);
+}
+
+.thumbnail.active {
+  border-color: #1f85da;
+  box-shadow: 0 2px 8px rgba(31, 133, 218, 0.3);
+}
+
+/* Deprecated - kept for backwards compatibility */
 .detailsGrid{
   display: grid;
   grid-template-columns: 320px 1fr;
@@ -34,6 +86,11 @@
   flex-direction: column;
   gap: 6px;
 }
+/* Content Section */
+.contentSection {
+  min-height: 400px;
+}
+
 .title{
   color: #0f4c81;
   font-size: 2rem;
@@ -41,17 +98,71 @@
   line-height: 1.15;
   font-weight: 700;
 }
+
+.author {
+  color: #1f85da;
+  font-size: 1.1rem;
+  margin: 0 0 1.5rem 0;
+  font-weight: 500;
+}
+
+.sectionHeading {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f4c81;
+  margin: 1.5rem 0 1rem 0;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 0.5rem;
+}
+
 .description{
   line-height: 1.8;
   color: #222;
   margin-top: 1rem;
 }
+/* Buy Section - Right Column */
+.buySection {
+  background: #f9fafb;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  position: sticky;
+  top: 20px;
+}
+
 .price{
   color: #111827;
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  margin-top: 6px;
+  margin-bottom: 1rem;
 }
+
+.purchaseButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+
+.purchaseButton {
+  background: #1f85da;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 6px;
+  text-decoration: none;
+  text-align: center;
+  font-weight: 600;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.purchaseButton:hover {
+  background: #1567b3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(31, 133, 218, 0.3);
+}
+
 .cartSection{
   margin-top: 12px;
   display:flex;
@@ -79,6 +190,13 @@
   text-decoration: none;
   font-weight: 600;
   display: inline-block;
+  border: none;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #1567b3;
+  transform: translateY(-1px);
 }
 .metaTable{
   border-collapse: collapse;
@@ -131,7 +249,59 @@
 .relatedThumb img{ width:100%; height:220px; object-fit:cover; border-radius:4px }
 .relatedTitle{ font-size:0.95rem; margin-top:8px; color:#0f4c81; font-weight:600 }
 
-@media (max-width: 768px){
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .threeColumnGrid {
+    grid-template-columns: 280px 1fr 300px;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .detailsWrapper {
+    padding: 0.75rem 1rem;
+  }
+
+  .threeColumnGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .imageSection,
+  .buySection {
+    position: static;
+  }
+
+  /* On mobile, reorder: images, buy options, then content */
+  .imageSection {
+    order: 1;
+  }
+
+  .buySection {
+    order: 2;
+  }
+
+  .contentSection {
+    order: 3;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .sectionHeading {
+    font-size: 1.25rem;
+  }
+
+  .relatedList {
+    gap: 10px;
+  }
+
+  .relatedItem {
+    width: 140px;
+  }
+
+  /* Legacy responsive for old layout */
   .detailsGrid{
     grid-template-columns: 1fr;
   }

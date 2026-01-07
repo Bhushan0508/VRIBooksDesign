@@ -1,14 +1,43 @@
 import { useState } from "react";
 import style from './BookCards.module.css';
-import Pagination from "./pagination";
+import Pagination from "./Pagination";
 import Modal from './Modal';
 import { Link } from "react-router-dom";
+import purchaseLinksData from '../purchaseLinksMap.json';
 // import infoIcon from './public/image/infoIcon.jpg'
 
 function BookCards({ query, apiData, selected, sortBy }) {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedBook, setSelectedBook] = useState(null);
+
+    // Function to normalize ISBN (remove hyphens and spaces)
+    const normalizeISBN = (isbn) => {
+        if (!isbn) return '';
+        return isbn.replace(/[-\s]/g, '');
+    };
+
+    // Function to get purchase links by ISBN
+    const getPurchaseLinks = (isbn) => {
+        if (!isbn) return [];
+
+        // Try exact match first
+        let links = purchaseLinksData[isbn];
+
+        // If no match, try with normalized ISBN
+        if (!links) {
+            const normalized = normalizeISBN(isbn);
+            // Search through all keys to find a match
+            for (const key in purchaseLinksData) {
+                if (normalizeISBN(key) === normalized) {
+                    links = purchaseLinksData[key];
+                    break;
+                }
+            }
+        }
+
+        return links || [];
+    };
 
     // Filtering Data
     const filteredData = apiData.filter((el) => {
@@ -37,7 +66,8 @@ function BookCards({ query, apiData, selected, sortBy }) {
                 {
                     // Rendring Cards
                     filteredData && filteredData.slice(indexOfFirstItem, indexOfLastItem).map((el) => {
-                        
+                        const purchaseLinks = getPurchaseLinks(el.ISBN);
+
                         return <div className={style.cards} key={el.ID}>
                             <Link to={`/bookDetail/${el.SKU}`} className={style.linkCards} >
                                 <div className={style.cardImgBox}>
@@ -49,8 +79,8 @@ function BookCards({ query, apiData, selected, sortBy }) {
                             </Link>
                             <div className={style.infoIcon}>
                                 <span className={style.lang}>{el.Language}</span>&nbsp;&nbsp;
-                            
-                            
+
+
                                 <span
                                     className={style.icon}
                                     title="Click to see the details"
@@ -70,6 +100,26 @@ function BookCards({ query, apiData, selected, sortBy }) {
                                     <img src='image/infoGif4.gif' />
                                 </span>
                             </div>
+                            {purchaseLinks.length > 0 && (
+                                <div className={style.purchaseButtons}>
+                                    {purchaseLinks.map((link, index) => {
+                                        // Capitalize and format platform name
+                                        const platformName = link.platform.charAt(0).toUpperCase() + link.platform.slice(1);
+
+                                        return (
+                                            <a
+                                                key={index}
+                                                href={link.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className={style.purchaseButton}
+                                            >
+                                                {platformName}
+                                            </a>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </div>
                     })
                     
