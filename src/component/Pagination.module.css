@@ -1,139 +1,19 @@
-/* Pagination styling with responsive design */
-.paginationBox {
+/* Pagination styling starts from here */
+.paginationBox{
     display: flex;
     justify-content: center;
-    align-items: center;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    margin: 2rem 1rem 2rem 1rem;
-    padding: 1rem;
+    column-gap: 4px;
+    margin-bottom: 2rem;
 }
-
-/* Navigation buttons (Prev/Next) */
-.navBtn {
+.paginationBox button{
     cursor: pointer;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     background-color: #42749c;
     color: #fff;
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    white-space: nowrap;
-    min-height: 40px;
+    padding: 8px;
 }
-
-.navBtn:hover:not(:disabled) {
-    background-color: #305a7d;
-    transform: translateY(-2px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-.navBtn:active:not(:disabled) {
-    transform: translateY(0);
-}
-
-.navBtn:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-    opacity: 0.6;
-}
-
-/* Page numbers container */
-.pageNumbers {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.25rem;
-    align-items: center;
-}
-
-/* Individual page buttons */
-.pageBtn {
-    cursor: pointer;
-    border: 1px solid #42749c;
-    border-radius: 4px;
-    background-color: #f5f5f5;
-    color: #42749c;
-    padding: 0.4rem 0.6rem;
-    font-size: 0.85rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    min-width: 32px;
-    min-height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.pageBtn:hover {
-    background-color: #e8f1f7;
-    border-color: #305a7d;
-}
-
-.pageBtn:active {
-    transform: scale(0.98);
-}
-
-/* Active page button */
-.active {
+.active{
     background-color: #0f82e0 !important;
-    color: #fff !important;
-    border-color: #0f82e0 !important;
-    font-weight: 600;
-}
-
-/* Ellipsis styling */
-.ellipsis {
-    color: #666;
-    padding: 0.4rem 0.25rem;
-    user-select: none;
-}
-
-/* Mobile responsiveness */
-@media (max-width: 768px) {
-    .paginationBox {
-        gap: 0.3rem;
-        padding: 0.75rem;
-        margin: 1.5rem 0.5rem;
-    }
-
-    .navBtn {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.8rem;
-    }
-
-    .pageBtn {
-        padding: 0.3rem 0.5rem;
-        font-size: 0.75rem;
-        min-width: 28px;
-        min-height: 28px;
-    }
-}
-
-/* Extra small screens */
-@media (max-width: 480px) {
-    .paginationBox {
-        gap: 0.2rem;
-        padding: 0.5rem;
-        margin: 1rem 0;
-    }
-
-    .navBtn {
-        padding: 0.35rem 0.6rem;
-        font-size: 0.7rem;
-        min-height: 32px;
-    }
-
-    .pageBtn {
-        padding: 0.25rem 0.4rem;
-        font-size: 0.7rem;
-        min-width: 24px;
-        min-height: 24px;
-    }
-
-    .ellipsis {
-        padding: 0.3rem 0.15rem;
-    }
 }
