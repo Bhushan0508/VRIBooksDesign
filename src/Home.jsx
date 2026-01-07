@@ -16,8 +16,27 @@ function Home(){
     async function fetchData(){
       setLoading(true);
       try{
+        // Check if data exists in sessionStorage
+        const cachedData = sessionStorage.getItem('booksData');
+        const cacheTimestamp = sessionStorage.getItem('booksDataTimestamp');
+        const now = Date.now();
+        const cacheExpiry = 30 * 60 * 1000; // 30 minutes
+
+        // Use cache if it exists and is not expired
+        if (cachedData && cacheTimestamp && (now - parseInt(cacheTimestamp)) < cacheExpiry) {
+          setApiData(JSON.parse(cachedData));
+          setLoading(false);
+          return;
+        }
+
+        // Fetch fresh data
         const res = await fetch('/api/get-books-info');
         const data = await res.json();
+
+        // Store in sessionStorage
+        sessionStorage.setItem('booksData', JSON.stringify(data));
+        sessionStorage.setItem('booksDataTimestamp', now.toString());
+
         setApiData(data);
       }catch(err){
         console.error(err);

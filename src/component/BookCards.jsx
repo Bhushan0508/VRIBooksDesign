@@ -69,7 +69,11 @@ function BookCards({ query, apiData, selected, sortBy }) {
                         const purchaseLinks = getPurchaseLinks(el.ISBN);
 
                         return <div className={style.cards} key={el.ID}>
-                            <Link to={`/bookDetail/${el.SKU}`} className={style.linkCards} >
+                            <Link
+                                to={`/bookDetail/${el.SKU}`}
+                                className={style.linkCards}
+                                state={{ book: el, allBooks: apiData }}
+                            >
                                 <div className={style.cardImgBox}>
                                     <img src={el.Images?.[0] ?? ''} alt={el.BookType} />
                                 </div>

@@ -1,4 +1,4 @@
-﻿import { useParams, Link } from "react-router-dom"
+﻿import { useParams, Link, useLocation } from "react-router-dom"
 import { useEffect, useState } from 'react'
 import DOMPurify from 'dompurify'
 import styles from './BookDetails.module.css'
@@ -6,11 +6,14 @@ import purchaseLinksData from '../purchaseLinksMap.json'
 
 function BookDetails () {
     const { sku } = useParams()
+    const location = useLocation()
     const [book, setBook] = useState(null)
     const [loading, setLoading] = useState(true)
     const [selectedImage, setSelectedImage] = useState(0)
     const [quantity, setQuantity] = useState(1)
     const [allBooks, setAllBooks] = useState([])
+    const [isZoomed, setIsZoomed] = useState(false)
+    const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 })
 
     // Helper: Normalize ISBN for matching
     const normalizeISBN = (isbn) => {
@@ -83,14 +86,58 @@ function BookDetails () {
         }
     };
 
+    // Helper: Handle image zoom on mouse move
+    const handleMouseMove = (e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        setZoomPosition({ x, y });
+    };
+
     useEffect(() => {
         let mounted = true
+
+        // Check if data was passed via navigation state
+        if (location.state?.book && location.state?.allBooks) {
+            setBook(location.state.book)
+            setAllBooks(location.state.allBooks)
+            setLoading(false)
+            setSelectedImage(0) // Reset image selection
+            return
+        }
+
+        // Try to get data from sessionStorage first
+        const cachedData = sessionStorage.getItem('booksData');
+        const cacheTimestamp = sessionStorage.getItem('booksDataTimestamp');
+        const now = Date.now();
+        const cacheExpiry = 30 * 60 * 1000; // 30 minutes
+
+        if (cachedData && cacheTimestamp && (now - parseInt(cacheTimestamp)) < cacheExpiry) {
+            try {
+                const data = JSON.parse(cachedData);
+                setAllBooks(data);
+                const found = data.find(b => String(b.SKU) === String(sku));
+                setBook(found || null);
+                setLoading(false);
+                setSelectedImage(0);
+                return;
+            } catch (err) {
+                console.error('Error parsing cached data:', err);
+            }
+        }
+
+        // Fallback: Fetch data from API if not in cache
         async function load(){
             setLoading(true)
             try{
                 const res = await fetch('/api/get-books-info')
                 const data = await res.json()
                 if (!mounted) return
+
+                // Store in sessionStorage
+                sessionStorage.setItem('booksData', JSON.stringify(data));
+                sessionStorage.setItem('booksDataTimestamp', now.toString());
+
                 setAllBooks(data)
                 const found = data.find(b => String(b.SKU) === String(sku))
                 setBook(found || null)
@@ -102,7 +149,7 @@ function BookDetails () {
         }
         load()
         return () => { mounted = false }
-    }, [sku])
+    }, [sku, location.state])
 
     if (loading) return <div className={styles.detailsWrapper}>Loading...</div>
 
@@ -126,11 +173,21 @@ function BookDetails () {
                 <div className={styles.imageSection}>
                     {images.length > 0 && (
                         <>
-                            <img
-                                src={images[selectedImage]}
-                                alt={book.Title}
-                                className={styles.mainImage}
-                            />
+                            <div
+                                className={`${styles.imageZoomContainer} ${isZoomed ? styles.zoomed : ''}`}
+                                onMouseEnter={() => setIsZoomed(true)}
+                                onMouseLeave={() => setIsZoomed(false)}
+                                onMouseMove={handleMouseMove}
+                            >
+                                <img
+                                    src={images[selectedImage]}
+                                    alt={book.Title}
+                                    className={styles.mainImage}
+                                    style={isZoomed ? {
+                                        transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`
+                                    } : {}}
+                                />
+                            </div>
                             {images.length > 1 && (
                                 <div className={styles.thumbnailGrid}>
                                     {images.map((img, index) => (
@@ -296,6 +353,7 @@ function BookDetails () {
                                 key={relatedBook.SKU}
                                 to={`/bookDetail/${relatedBook.SKU}`}
                                 className={styles.relatedItem}
+                                state={{ book: relatedBook, allBooks: allBooks }}
                             >
                                 <div className={styles.relatedThumb}>
                                     <img src={relatedBook.Images?.[0]} alt={relatedBook.Title} />

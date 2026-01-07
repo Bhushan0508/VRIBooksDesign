@@ -30,13 +30,29 @@
   top: 20px;
 }
 
-.mainImage {
-  width: 100%;
-  height: auto;
+/* Image Zoom Container */
+.imageZoomContainer {
+  position: relative;
+  overflow: hidden;
   border-radius: 8px;
   box-shadow: 0 6px 20px rgba(0,0,0,0.15);
   margin-bottom: 1rem;
-  cursor: pointer;
+  cursor: zoom-in;
+}
+
+.imageZoomContainer.zoomed {
+  cursor: zoom-out;
+}
+
+.mainImage {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.imageZoomContainer.zoomed .mainImage {
+  transform: scale(2.5);
 }
 
 .thumbnailGrid {
