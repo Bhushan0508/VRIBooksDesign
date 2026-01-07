@@ -61,6 +61,15 @@ function BookDetails () {
         return `${sizeKB} KB`;
     };
 
+    // Helper: Get file format from URL
+    const getFileFormat = (url) => {
+        if (!url) return 'FILE';
+        const extension = url.toLowerCase().split('.').pop().split('?')[0];
+        if (extension === 'pdf') return 'PDF';
+        if (extension === 'epub') return 'EPUB';
+        return extension.toUpperCase() || 'FILE';
+    };
+
     // Helper: Get related books
     const getRelatedBooks = (currentBook, allBooks) => {
         return allBooks
@@ -327,7 +336,7 @@ function BookDetails () {
                             rel="noopener noreferrer"
                             className={styles.previewLink}
                         >
-                            📄 Download Free PDF
+                            📄 Download Free {getFileFormat(purchaseLinks.find(l => l.platform.toLowerCase() === 'free').url)}
                         </a>
                     )}
 
