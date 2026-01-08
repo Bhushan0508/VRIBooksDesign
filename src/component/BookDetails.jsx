@@ -1,13 +1,14 @@
-﻿import { useParams, Link, useLocation } from "react-router-dom"
+﻿import { useParams, Link, useLocation, useSearchParams } from "react-router-dom"
 import { useEffect, useState } from 'react'
 import DOMPurify from 'dompurify'
 import styles from './BookDetails.module.css'
 import purchaseLinksMap from '../purchaseLinksMap.json'
-import { openShareUrl, getBookDetailUrl, copyBookLinkToClipboard } from '../utils/bookLinks'
+import { openShareUrl, getBookDetailUrl, copyBookLinkToClipboard, getBookDetailUrlWithParams } from '../utils/bookLinks'
 
 function BookDetails () {
     const { sku } = useParams()
     const location = useLocation()
+    const [searchParams] = useSearchParams()
     const [book, setBook] = useState(null)
     const [loading, setLoading] = useState(true)
     const [selectedImage, setSelectedImage] = useState(0)
@@ -16,6 +17,19 @@ function BookDetails () {
     const [isZoomed, setIsZoomed] = useState(false)
     const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 })
     const [showMagnifier, setShowMagnifier] = useState(false)
+    const [trackingSource, setTrackingSource] = useState('')
+
+    // Helper: Get query parameters for tracking
+    const getTrackingParams = () => {
+        const params = {};
+        for (let [key, value] of searchParams.entries()) {
+            params[key] = value;
+        }
+        if (Object.keys(params).length > 0) {
+            setTrackingSource(params.utm_source || params.ref || 'direct');
+        }
+        return params;
+    };
 
     // Helper: Normalize ISBN for matching
     const normalizeISBN = (isbn) => {
@@ -120,17 +134,58 @@ function BookDetails () {
         return uniqueBooks;
     };
 
-    // Helper: Handle share
+    // Helper: Handle share with tracking parameters
     const handleShare = (platform, book) => {
-        openShareUrl(platform, book);
+        const trackingParams = {
+            utm_source: platform,
+            utm_medium: 'social',
+            utm_campaign: 'book_share'
+        };
+        
+        // Create share URL with tracking parameters
+        const shareUrl = getBookDetailUrlWithParams(book.SKU, trackingParams);
+        const encodedUrl = encodeURIComponent(shareUrl);
+        const bookTitle = book.Title;
+        const author = book.Author ? ` by ${book.Author}` : '';
+        const shareMessage = `${bookTitle}${author}`;
+        const encodedMessage = encodeURIComponent(shareMessage);
+
+        const shareUrls = {
+            facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+            twitter: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedMessage}`,
+            whatsapp: `https://wa.me/?text=${encodedMessage}%0A${encodedUrl}`,
+            email: `mailto:?subject=${encodedMessage}&body=Check out this book:%0A${shareUrl}`,
+            linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+            pinterest: `https://pinterest.com/pin/create/button/?url=${encodedUrl}&description=${encodedMessage}`,
+            reddit: `https://reddit.com/submit?url=${encodedUrl}&title=${encodedMessage}`
+        };
+
+        if (shareUrls[platform]) {
+            if (platform === 'whatsapp' || platform === 'email') {
+                window.open(shareUrls[platform], '_blank');
+            } else {
+                window.open(shareUrls[platform], '_blank', 'width=600,height=400');
+            }
+        }
     };
 
-    // Helper: Handle copy link
-    const handleCopyLink = async () => {
-        const success = await copyBookLinkToClipboard(book.SKU);
-        if (success) {
-            alert('Link copied to clipboard!');
+    // Helper: Handle copy link with optional tracking parameters
+    const handleCopyLink = async (withTracking = false) => {
+        let urlToCopy;
+        if (withTracking) {
+            urlToCopy = getBookDetailUrlWithParams(book.SKU, {
+                utm_source: 'copy_paste',
+                utm_medium: 'direct',
+                utm_campaign: 'book_share'
+            });
         } else {
+            urlToCopy = getBookDetailUrl(book.SKU);
+        }
+        
+        try {
+            await navigator.clipboard.writeText(urlToCopy);
+            alert('Link copied to clipboard!');
+        } catch (err) {
             alert('Failed to copy link');
         }
     };
@@ -352,35 +407,80 @@ function BookDetails () {
                     <div className={styles.shareSection}>
                         <h2 className={styles.sectionHeading}>Share This Book</h2>
                         
-                        {/* Shareable URL */}
+                        {/* Shareable URL Options */}
                         <div className={styles.shareableLink}>
-                            <label>Shareable Link:</label>
-                            <div className={styles.linkContainer}>
-                                <input 
-                                    type="text" 
-                                    readOnly 
-                                    value={getBookDetailUrl(book.SKU)}
-                                    className={styles.linkInput}
-                                />
-                                <button 
-                                    className={styles.copyBtn}
-                                    onClick={handleCopyLink}
-                                    title="Copy link to clipboard"
-                                >
-                                    📋 Copy
-                                </button>
+                            <label>Shareable Links:</label>
+                            
+                            {/* Basic URL */}
+                            <div style={{marginBottom: '12px'}}>
+                                <small style={{color: '#6b7280', display: 'block', marginBottom: '4px'}}>Basic Link (no tracking):</small>
+                                <div className={styles.linkContainer}>
+                                    <input 
+                                        type="text" 
+                                        readOnly 
+                                        value={getBookDetailUrl(book.SKU)}
+                                        className={styles.linkInput}
+                                    />
+                                    <button 
+                                        className={styles.copyBtn}
+                                        onClick={() => handleCopyLink(false)}
+                                        title="Copy basic link to clipboard"
+                                    >
+                                        📋 Copy
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* URL with Tracking */}
+                            <div>
+                                <small style={{color: '#6b7280', display: 'block', marginBottom: '4px'}}>Tracked Link (with UTM parameters):</small>
+                                <div className={styles.linkContainer}>
+                                    <input 
+                                        type="text" 
+                                        readOnly 
+                                        value={getBookDetailUrlWithParams(book.SKU, {
+                                            utm_source: 'share',
+                                            utm_medium: 'social',
+                                            utm_campaign: 'book_promotion'
+                                        })}
+                                        className={styles.linkInput}
+                                        style={{fontSize: '0.8rem'}}
+                                    />
+                                    <button 
+                                        className={styles.copyBtn}
+                                        onClick={() => handleCopyLink(true)}
+                                        title="Copy tracked link to clipboard"
+                                    >
+                                        📋 Copy
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         
                         {/* Share Buttons */}
                         <div className={styles.shareButtons}>
-                            <span style={{fontWeight: 600, marginRight: '8px', display: 'block', marginBottom: '8px'}}>Share on:</span>
+                            <span style={{fontWeight: 600, marginRight: '8px', display: 'block', marginBottom: '8px', width: '100%'}}>Share on:</span>
                             <button className={styles.shareBtn} onClick={() => handleShare('facebook', book)}>📱 Facebook</button>
                             <button className={styles.shareBtn} onClick={() => handleShare('twitter', book)}>𝕏 Twitter</button>
                             <button className={styles.shareBtn} onClick={() => handleShare('whatsapp', book)}>💬 WhatsApp</button>
                             <button className={styles.shareBtn} onClick={() => handleShare('email', book)}>✉️ Email</button>
                             <button className={styles.shareBtn} onClick={() => handleShare('linkedin', book)}>in LinkedIn</button>
                         </div>
+
+                        {/* Info about tracking */}
+                        {trackingSource && (
+                            <div style={{
+                                marginTop: '12px',
+                                padding: '8px 12px',
+                                background: '#f0f9ff',
+                                borderLeft: '3px solid #1f85da',
+                                borderRadius: '4px',
+                                fontSize: '0.85rem',
+                                color: '#1f85da'
+                            }}>
+                                📊 You reached this page from: <strong>{trackingSource}</strong>
+                            </div>
+                        )}
                     </div>
                 </div>
 
