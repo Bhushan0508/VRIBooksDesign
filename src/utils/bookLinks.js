@@ -2,22 +2,15 @@
  * Utility functions for generating book detail links
  */
 
-// Get current domain (works in browser)
-const getCurrentDomain = () => {
-    if (typeof window !== 'undefined') {
-        return `${window.location.protocol}//${window.location.host}`;
-    }
-    return 'https://www.vridhamma.org'; // Fallback for production
-};
-
 /**
- * Get the full book detail page URL
+ * Get the full book detail page URL (uses current domain) (uses current domain)
  * @param {string} sku - Book SKU
  * @returns {string} Full URL to book detail page
  */
 export const getBookDetailUrl = (sku) => {
     if (!sku) return '';
-    const domain = getCurrentDomain();
+    const domain = window.location.origin;
+    console.log('📍 Current Domain:', domain);
     return `${domain}/bookDetail/${sku}`;
 };
 
@@ -114,5 +107,7 @@ export const getBookDetailUrlWithParams = (sku, params = {}) => {
         .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
         .join('&');
 
-    return `${baseUrl}?${queryString}`;
+    const finalUrl = `${baseUrl}?${queryString}`;
+    console.log('🔗 Final Share URL:', finalUrl);
+    return finalUrl;
 };

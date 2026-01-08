@@ -136,6 +136,8 @@ function BookDetails () {
 
     // Helper: Handle share with tracking parameters
     const handleShare = (platform, book) => {
+        console.log(`📤 Share clicked for ${platform}:`, book);
+        
         const trackingParams = {
             utm_source: platform,
             utm_medium: 'social',
@@ -144,11 +146,16 @@ function BookDetails () {
         
         // Create share URL with tracking parameters
         const shareUrl = getBookDetailUrlWithParams(book.SKU, trackingParams);
+        console.log('🔗 Share URL:', shareUrl);
+        
         const encodedUrl = encodeURIComponent(shareUrl);
+        console.log('📝 Encoded URL:', encodedUrl);
+        
         const bookTitle = book.Title;
         const author = book.Author ? ` by ${book.Author}` : '';
         const shareMessage = `${bookTitle}${author}`;
         const encodedMessage = encodeURIComponent(shareMessage);
+        console.log('💬 Share Message:', shareMessage);
 
         const shareUrls = {
             facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
@@ -159,6 +166,9 @@ function BookDetails () {
             pinterest: `https://pinterest.com/pin/create/button/?url=${encodedUrl}&description=${encodedMessage}`,
             reddit: `https://reddit.com/submit?url=${encodedUrl}&title=${encodedMessage}`
         };
+
+        console.log('🌐 Platform URLs:', shareUrls);
+        console.log(`📲 Opening ${platform} with:`, shareUrls[platform]);
 
         if (shareUrls[platform]) {
             if (platform === 'whatsapp' || platform === 'email') {
