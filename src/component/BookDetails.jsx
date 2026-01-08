@@ -206,6 +206,7 @@ function BookDetails () {
 
         // Check if data was passed via navigation state
         if (location.state?.book && location.state?.allBooks) {
+            console.log('✅ Using book data from navigation state');
             setBook(location.state.book)
             setAllBooks(location.state.allBooks)
             setLoading(false)
@@ -221,51 +222,129 @@ function BookDetails () {
 
         if (cachedData && cacheTimestamp && (now - parseInt(cacheTimestamp)) < cacheExpiry) {
             try {
+                console.log('✅ Using cached data from sessionStorage');
                 const data = JSON.parse(cachedData);
                 setAllBooks(data);
                 const found = data.find(b => String(b.SKU) === String(sku));
-                setBook(found || null);
-                setLoading(false);
-                setSelectedImage(0);
-                return;
+                if (found) {
+                    setBook(found);
+                    setLoading(false);
+                    setSelectedImage(0);
+                    return;
+                } else {
+                    console.warn(`⚠️  Book with SKU ${sku} not found in cache, fetching from API...`);
+                }
             } catch (err) {
-                console.error('Error parsing cached data:', err);
+                console.error('❌ Error parsing cached data:', err);
             }
         }
 
-        // Fallback: Fetch data from API if not in cache
-        async function load(){
-            setLoading(true)
-            try{
-                const res = await fetch('/api/get-books-info')
-                const data = await res.json()
-                if (!mounted) return
+        // Fallback: Fetch data from API if not in cache or not found
+        async function load() {
+            setLoading(true);
+            let retryCount = 0;
+            const maxRetries = 3;
 
-                // Store in sessionStorage
-                sessionStorage.setItem('booksData', JSON.stringify(data));
-                sessionStorage.setItem('booksDataTimestamp', now.toString());
-                // Store purchase links in sessionStorage
-                sessionStorage.setItem('purchaseLinksMap', JSON.stringify(purchaseLinksMap));
+            const fetchBooks = async () => {
+                try {
+                    console.log(`📡 Fetching books from API (attempt ${retryCount + 1}/${maxRetries})...`);
+                    const res = await fetch('/api/get-books-info');
+                    
+                    if (!res.ok) {
+                        throw new Error(`API returned status ${res.status}`);
+                    }
+                    
+                    const data = await res.json();
+                    
+                    if (!Array.isArray(data)) {
+                        throw new Error('API returned invalid data format');
+                    }
+                    
+                    if (!mounted) return;
 
-                setAllBooks(data)
-                const found = data.find(b => String(b.SKU) === String(sku))
-                setBook(found || null)
-            }catch(err){
-                console.error(err)
-            }finally{
-                setLoading(false)
+                    console.log(`✅ Successfully fetched ${data.length} books from API`);
+                    
+                    // Store in sessionStorage
+                    sessionStorage.setItem('booksData', JSON.stringify(data));
+                    sessionStorage.setItem('booksDataTimestamp', now.toString());
+                    // Store purchase links in sessionStorage
+                    sessionStorage.setItem('purchaseLinksMap', JSON.stringify(purchaseLinksMap));
+
+                    setAllBooks(data);
+                    const found = data.find(b => String(b.SKU) === String(sku));
+                    
+                    if (found) {
+                        console.log(`✅ Found book with SKU: ${sku}`);
+                        setBook(found);
+                    } else {
+                        console.error(`❌ Book with SKU ${sku} not found in API response`);
+                        console.warn(`Available SKUs: ${data.slice(0, 10).map(b => b.SKU).join(', ')}...`);
+                        setBook(null);
+                    }
+                    
+                    return true; // Success
+                } catch (err) {
+                    console.error(`❌ API fetch error (attempt ${retryCount + 1}):`, err.message);
+                    return false; // Failed
+                }
+            };
+
+            // Try to fetch with retries
+            while (retryCount < maxRetries) {
+                const success = await fetchBooks();
+                if (success) {
+                    break;
+                }
+                retryCount++;
+                
+                if (retryCount < maxRetries) {
+                    const delay = 1000 * Math.pow(2, retryCount); // Exponential backoff
+                    console.log(`⏳ Retrying in ${delay}ms...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
             }
+            
+            if (!mounted) return;
+            setLoading(false);
         }
-        load()
-        return () => { mounted = false }
+        
+        load();
+        return () => { mounted = false };
     }, [sku, location.state])
 
-    if (loading) return <div className={styles.detailsWrapper}>Loading...</div>
+    if (loading) return (
+        <div className={styles.detailsWrapper}>
+            <Link to="/" className={styles.backLink}>&larr; Back</Link>
+            <div style={{padding: '20px', textAlign: 'center'}}>
+                <p>Loading book details...</p>
+                <p style={{fontSize: '0.9rem', color: '#666'}}>Fetching from API...</p>
+            </div>
+        </div>
+    )
 
     if (!book) return (
         <div className={styles.detailsWrapper}>
             <Link to="/" className={styles.backLink}>&larr; Back</Link>
-            <h2>Book not found</h2>
+            <div style={{padding: '20px'}}>
+                <h2>❌ Book not found</h2>
+                <p style={{marginTop: '10px', color: '#666'}}>
+                    The book with SKU "<strong>{sku}</strong>" could not be found.
+                </p>
+                <details style={{marginTop: '15px', padding: '10px', background: '#f5f5f5', borderRadius: '4px'}}>
+                    <summary style={{cursor: 'pointer', fontWeight: '600'}}>🔍 Troubleshooting</summary>
+                    <ul style={{marginTop: '10px', marginLeft: '20px'}}>
+                        <li>Check if the SKU is spelled correctly</li>
+                        <li>Verify the book exists in the database</li>
+                        <li>Try navigating from the home page</li>
+                        <li>Check browser console (F12) for error messages</li>
+                    </ul>
+                </details>
+                <div style={{marginTop: '20px'}}>
+                    <Link to="/" style={{color: '#1f85da', textDecoration: 'underline'}}>
+                        Return to home page
+                    </Link>
+                </div>
+            </div>
         </div>
     )
 
