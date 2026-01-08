@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import DOMPurify from 'dompurify'
 import styles from './BookDetails.module.css'
 import purchaseLinksMap from '../purchaseLinksMap.json'
+import { openShareUrl } from '../utils/bookLinks'
 
 function BookDetails () {
     const { sku } = useParams()
@@ -121,19 +122,7 @@ function BookDetails () {
 
     // Helper: Handle share
     const handleShare = (platform, book) => {
-        const url = encodeURIComponent(window.location.href);
-        const text = encodeURIComponent(book.Title);
-
-        const shareUrls = {
-            facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
-            twitter: `https://twitter.com/intent/tweet?url=${url}&text=${text}`,
-            whatsapp: `https://wa.me/?text=${text} ${url}`,
-            email: `mailto:?subject=${text}&body=Check out this book: ${url}`
-        };
-
-        if (shareUrls[platform]) {
-            window.open(shareUrls[platform], '_blank', 'width=600,height=400');
-        }
+        openShareUrl(platform, book);
     };
 
     // Helper: Handle image zoom on mouse move
