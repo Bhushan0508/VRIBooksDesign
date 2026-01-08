@@ -71,6 +71,25 @@ export const useBookNavigation = () => {
     };
 
     /**
+     * Get the appropriate domain for sharing
+     * Uses production domain for shared links, current domain for navigation
+     * @returns {string} Domain URL
+     */
+    const getShareDomain = () => {
+        const currentDomain = window.location.origin;
+        
+        // If in development (localhost), use production domain for sharing
+        // so the link actually works when shared
+        if (currentDomain.includes('localhost') || currentDomain.includes('127.0.0.1')) {
+            console.log('📡 Using production domain for share links (development detected)');
+            return 'https://www.vridhamma.org';
+        }
+        
+        // In production, use current domain
+        return currentDomain;
+    };
+
+    /**
      * Generate shareable link for a book
      * @param {string} sku - Book SKU
      * @param {object} params - Optional query parameters
@@ -82,7 +101,8 @@ export const useBookNavigation = () => {
             return '';
         }
 
-        const domain = window.location.origin;
+        // Use production domain for shareable links
+        const domain = getShareDomain();
         let url = `${domain}/bookDetail/${sku}`;
 
         // Add query parameters if provided
