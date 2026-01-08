@@ -407,59 +407,31 @@ function BookDetails () {
                     <div className={styles.shareSection}>
                         <h2 className={styles.sectionHeading}>Share This Book</h2>
                         
-                        {/* Shareable URL Options */}
+                        {/* Shareable URL */}
                         <div className={styles.shareableLink}>
-                            <label>Shareable Links:</label>
+                            <label>📋 Book Link:</label>
                             
                             {/* Basic URL */}
-                            <div style={{marginBottom: '12px'}}>
-                                <small style={{color: '#6b7280', display: 'block', marginBottom: '4px'}}>Basic Link (no tracking):</small>
-                                <div className={styles.linkContainer}>
-                                    <input 
-                                        type="text" 
-                                        readOnly 
-                                        value={getBookDetailUrl(book.SKU)}
-                                        className={styles.linkInput}
-                                    />
-                                    <button 
-                                        className={styles.copyBtn}
-                                        onClick={() => handleCopyLink(false)}
-                                        title="Copy basic link to clipboard"
-                                    >
-                                        📋 Copy
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* URL with Tracking */}
-                            <div>
-                                <small style={{color: '#6b7280', display: 'block', marginBottom: '4px'}}>Tracked Link (with UTM parameters):</small>
-                                <div className={styles.linkContainer}>
-                                    <input 
-                                        type="text" 
-                                        readOnly 
-                                        value={getBookDetailUrlWithParams(book.SKU, {
-                                            utm_source: 'share',
-                                            utm_medium: 'social',
-                                            utm_campaign: 'book_promotion'
-                                        })}
-                                        className={styles.linkInput}
-                                        style={{fontSize: '0.8rem'}}
-                                    />
-                                    <button 
-                                        className={styles.copyBtn}
-                                        onClick={() => handleCopyLink(true)}
-                                        title="Copy tracked link to clipboard"
-                                    >
-                                        📋 Copy
-                                    </button>
-                                </div>
+                            <div className={styles.linkContainer}>
+                                <input 
+                                    type="text" 
+                                    readOnly 
+                                    value={getBookDetailUrl(book.SKU)}
+                                    className={styles.linkInput}
+                                />
+                                <button 
+                                    className={styles.copyBtn}
+                                    onClick={() => handleCopyLink(false)}
+                                    title="Copy link to clipboard"
+                                >
+                                    📋 Copy
+                                </button>
                             </div>
                         </div>
                         
-                        {/* Share Buttons */}
+                        {/* Share Buttons with Tracking */}
                         <div className={styles.shareButtons}>
-                            <span style={{fontWeight: 600, marginRight: '8px', display: 'block', marginBottom: '8px', width: '100%'}}>Share on:</span>
+                            <span style={{fontWeight: 600, marginRight: '8px', display: 'block', marginBottom: '8px', width: '100%'}}>📤 Share on:</span>
                             <button className={styles.shareBtn} onClick={() => handleShare('facebook', book)}>📱 Facebook</button>
                             <button className={styles.shareBtn} onClick={() => handleShare('twitter', book)}>𝕏 Twitter</button>
                             <button className={styles.shareBtn} onClick={() => handleShare('whatsapp', book)}>💬 WhatsApp</button>

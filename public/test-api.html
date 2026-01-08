@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Navigation API Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 { color: #0f4c81; border-bottom: 3px solid #1f85da; padding-bottom: 10px; }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .test-title {
+            font-weight: bold;
+            color: #1f85da;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        .result {
+            background: #f9fafb;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 3px solid #28a745;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 3px solid #dc3545;
+        }
+        .info {
+            background: #e7f3ff;
+            color: #0066cc;
+            border-left: 3px solid #0066cc;
+        }
+        .button {
+            background: #1f85da;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 5px 5px 5px 0;
+        }
+        .button:hover {
+            background: #1567b3;
+        }
+        .button-group {
+            margin: 15px 0;
+        }
+        ul { list-style: none; padding-left: 0; }
+        li:before { content: "✅ "; color: #28a745; margin-right: 5px; }
+        li.error:before { content: "❌ "; color: #dc3545; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Book Navigation API Test Suite</h1>
+    
+    <div class="test-section">
+        <div class="test-title">API Tests</div>
+        <div class="button-group">
+            <button class="button" onclick="testAPIConnection()">Test API Connection</button>
+            <button class="button" onclick="testFetchBooks()">Fetch All Books</button>
+            <button class="button" onclick="testFetchBookBySKU()">Fetch Book (E03)</button>
+            <button class="button" onclick="testSearchBooks()">Search Books</button>
+            <button class="button" onclick="testGetLanguages()">Get Languages</button>
+            <button class="button" onclick="testGetAuthors()">Get Authors</button>
+            <button class="button" onclick="testMultipleSKUs()">Test Multiple SKUs</button>
+            <button class="button" onclick="clearResults()">Clear Results</button>
+        </div>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        const API_URL = '/api/get-books-info';
+        let allBooks = null;
+
+        function addResult(title, content, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const section = document.createElement('div');
+            section.className = 'test-section';
+            
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'test-title';
+            titleDiv.textContent = title;
+            section.appendChild(titleDiv);
+            
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result ${type}`;
+            resultDiv.textContent = content;
+            section.appendChild(resultDiv);
+            
+            resultsDiv.appendChild(section);
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function testAPIConnection() {
+            try {
+                const response = await fetch(API_URL);
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult(
+                        '✅ API Connection Test',
+                        `API is accessible!\nBooks loaded: ${data.length}\nResponse status: ${response.status}`,
+                        'success'
+                    );
+                } else {
+                    addResult(
+                        '❌ API Connection Test',
+                        `Failed: HTTP ${response.status}`,
+                        'error'
+                    );
+                }
+            } catch (err) {
+                addResult(
+                    '❌ API Connection Test',
+                    `Error: ${err.message}`,
+                    'error'
+                );
+            }
+        }
+
+        async function testFetchBooks() {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                allBooks = data;
+                addResult(
+                    '✅ Fetch All Books',
+                    `Successfully fetched ${data.length} books\n\nFirst 5 books:\n${data.slice(0, 5).map(b => `• ${b.SKU}: ${b.Title}`).join('\n')}`,
+                    'success'
+                );
+            } catch (err) {
+                addResult('❌ Fetch All Books', `Error: ${err.message}`, 'error');
+            }
+        }
+
+        async function testFetchBookBySKU() {
+            try {
+                if (!allBooks) {
+                    const response = await fetch(API_URL);
+                    allBooks = await response.json();
+                }
+                
+                const sku = 'E03';
+                const book = allBooks.find(b => b.SKU === sku);
+                
+                if (book) {
+                    addResult(
+                        `✅ Fetch Book by SKU (${sku})`,
+                        `Title: ${book.Title}\nAuthor: ${book.Author}\nLanguage: ${book.Language}\nISBN: ${book.ISBN}\nPages: ${book.Pages}`,
+                        'success'
+                    );
+                } else {
+                    addResult(
+                        `❌ Fetch Book by SKU (${sku})`,
+                        `Book not found`,
+                        'error'
+                    );
+                }
+            } catch (err) {
+                addResult('❌ Fetch Book by SKU', `Error: ${err.message}`, 'error');
+            }
+        }
+
+        async function testSearchBooks() {
+            try {
+                if (!allBooks) {
+                    const response = await fetch(API_URL);
+                    allBooks = await response.json();
+                }
+                
+                const query = 'Art of Living';
+                const results = allBooks.filter(b => b.Title.includes(query));
+                
+                if (results.length > 0) {
+                    addResult(
+                        `✅ Search Books ("${query}")`,
+                        `Found ${results.length} books:\n${results.map(b => `• ${b.SKU}: ${b.Title}`).join('\n')}`,
+                        'success'
+                    );
+                } else {
+                    addResult(
+                        `⚠️ Search Books ("${query}")`,
+                        `No results found`,
+                        'info'
+                    );
+                }
+            } catch (err) {
+                addResult('❌ Search Books', `Error: ${err.message}`, 'error');
+            }
+        }
+
+        async function testGetLanguages() {
+            try {
+                if (!allBooks) {
+                    const response = await fetch(API_URL);
+                    allBooks = await response.json();
+                }
+                
+                const languages = [...new Set(allBooks.map(b => b.Language).filter(Boolean))].sort();
+                
+                addResult(
+                    '✅ Get Available Languages',
+                    `Found ${languages.length} languages:\n${languages.join(', ')}`,
+                    'success'
+                );
+            } catch (err) {
+                addResult('❌ Get Languages', `Error: ${err.message}`, 'error');
+            }
+        }
+
+        async function testGetAuthors() {
+            try {
+                if (!allBooks) {
+                    const response = await fetch(API_URL);
+                    allBooks = await response.json();
+                }
+                
+                const authors = [...new Set(allBooks.map(b => b.Author).filter(Boolean))].sort();
+                
+                addResult(
+                    '✅ Get Available Authors',
+                    `Found ${authors.length} authors:\n${authors.slice(0, 10).join('\n')}\n${authors.length > 10 ? `... and ${authors.length - 10} more` : ''}`,
+                    'success'
+                );
+            } catch (err) {
+                addResult('❌ Get Authors', `Error: ${err.message}`, 'error');
+            }
+        }
+
+        async function testMultipleSKUs() {
+            try {
+                if (!allBooks) {
+                    const response = await fetch(API_URL);
+                    allBooks = await response.json();
+                }
+                
+                const testSKUs = ['E03', 'E03-Pf', 'E03-Eb', 'M01', 'Sp02', 'H66', 'T01'];
+                const results = testSKUs.map(sku => {
+                    const book = allBooks.find(b => b.SKU === sku);
+                    return {
+                        sku,
+                        found: !!book,
+                        title: book?.Title || 'Not found'
+                    };
+                });
+                
+                const success = results.filter(r => r.found).length;
+                const resultText = results.map(r => 
+                    `${r.found ? '✅' : '❌'} ${r.sku}: ${r.title}`
+                ).join('\n');
+                
+                addResult(
+                    `✅ Test Multiple SKUs (${success}/${testSKUs.length} found)`,
+                    resultText,
+                    success === testSKUs.length ? 'success' : 'info'
+                );
+            } catch (err) {
+                addResult('❌ Test Multiple SKUs', `Error: ${err.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

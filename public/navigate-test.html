@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Navigation Test</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            color: #0f4c81;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin: 30px 0;
+        }
+        .section-title {
+            color: #1f85da;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        input:focus {
+            outline: none;
+            border-color: #1f85da;
+            box-shadow: 0 0 0 3px rgba(31, 133, 218, 0.1);
+        }
+        button {
+            background: #1f85da;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #1567b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(31, 133, 218, 0.3);
+        }
+        .quick-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .quick-buttons button {
+            margin: 0;
+        }
+        .url-display {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+            margin: 15px 0;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #1f85da;
+        }
+        .book-list {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        .book-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 4px;
+            border-left: 3px solid #1f85da;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .book-item:hover {
+            background: #e7f3ff;
+            transform: translateX(5px);
+        }
+        .book-sku {
+            font-weight: 600;
+            color: #0f4c81;
+        }
+        .book-title {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #1f85da;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            color: #0f4c81;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Book Navigation Test</h1>
+        <p class="subtitle">Navigate to book details with query parameters</p>
+
+        <div class="section">
+            <div class="section-title">1️⃣ Quick Navigation</div>
+            <div class="quick-buttons">
+                <button onclick="navigateToBook('E03', 'whatsapp')">E03 + WhatsApp</button>
+                <button onclick="navigateToBook('E03', 'facebook')">E03 + Facebook</button>
+                <button onclick="navigateToBook('M01', 'email')">M01 + Email</button>
+                <button onclick="navigateToBook('Sp02', 'search')">Sp02 + Search</button>
+                <button onclick="navigateToBook('H66', 'test')">H66 + Test</button>
+                <button onclick="navigateToBook('T01', 'homepage')">T01 + Home</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">2️⃣ Custom Navigation</div>
+            <div class="input-group">
+                <input type="text" id="skuInput" placeholder="Enter SKU (E03, M01, Sp02...)" value="E03">
+                <button onclick="goCustom()">Go</button>
+            </div>
+            <div class="input-group">
+                <input type="text" id="sourceInput" placeholder="Enter source (whatsapp, facebook, email...)" value="whatsapp">
+                <button onclick="goCustom()">Go</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">3️⃣ Generated URL</div>
+            <div class="url-display" id="urlDisplay">http://localhost:5173/bookDetail/E03?utm_source=whatsapp</div>
+            <button onclick="copyURL()">📋 Copy URL</button>
+            <button onclick="openURL()">🔗 Open URL</button>
+        </div>
+
+        <div class="info-box">
+            ℹ️ Click any button to navigate to the book details page with query parameters. 
+            The tracking source will be displayed on the book page.
+        </div>
+
+        <div class="section">
+            <div class="section-title">📚 Available Books</div>
+            <div class="book-list" id="bookList"></div>
+        </div>
+    </div>
+
+    <script>
+        const books = [
+            { sku: 'E01', title: 'Sayagyi U Ba Khin Journal (English)' },
+            { sku: 'E02', title: 'Essence of Tipitaka (English)' },
+            { sku: 'E03', title: 'Art of Living (Paperback, English)' },
+            { sku: 'E03-Pf', title: 'Art of Living (PDF, English)' },
+            { sku: 'E03-Eb', title: 'Art of Living (eBook, English)' },
+            { sku: 'M01', title: 'Art of Living (Marathi)' },
+            { sku: 'M01-Pf', title: 'Art of Living (PDF, Marathi)' },
+            { sku: 'Sp02', title: 'Art of Living (Spanish)' },
+            { sku: 'H66', title: 'Jine ki kala (Hindi)' },
+            { sku: 'T01', title: 'Art of Living (Tamil)' }
+        ];
+
+        const sources = ['whatsapp', 'facebook', 'email', 'search', 'google', 'homepage', 'test'];
+
+        function navigateToBook(sku, source) {
+            const url = `/bookDetail/${sku}?utm_source=${source}&utm_medium=social&utm_campaign=book_share`;
+            window.location.href = url;
+        }
+
+        function goCustom() {
+            const sku = document.getElementById('skuInput').value || 'E03';
+            const source = document.getElementById('sourceInput').value || 'whatsapp';
+            navigateToBook(sku, source);
+        }
+
+        function updateURL() {
+            const sku = document.getElementById('skuInput').value || 'E03';
+            const source = document.getElementById('sourceInput').value || 'whatsapp';
+            const url = `http://localhost:5173/bookDetail/${sku}?utm_source=${source}&utm_medium=social&utm_campaign=book_share`;
+            document.getElementById('urlDisplay').textContent = url;
+        }
+
+        function copyURL() {
+            const url = document.getElementById('urlDisplay').textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('✅ URL copied to clipboard!\n\n' + url);
+            });
+        }
+
+        function openURL() {
+            const url = document.getElementById('urlDisplay').textContent;
+            window.open(url, '_blank');
+        }
+
+        function loadBooks() {
+            const bookList = document.getElementById('bookList');
+            books.forEach(book => {
+                const div = document.createElement('div');
+                div.className = 'book-item';
+                div.onclick = () => {
+                    document.getElementById('skuInput').value = book.sku;
+                    updateURL();
+                };
+                div.innerHTML = `
+                    <div class="book-sku">${book.sku}</div>
+                    <div class="book-title">${book.title}</div>
+                `;
+                bookList.appendChild(div);
+            });
+        }
+
+        // Event listeners for real-time URL update
+        document.getElementById('skuInput').addEventListener('input', updateURL);
+        document.getElementById('sourceInput').addEventListener('input', updateURL);
+
+        // Load books on page load
+        loadBooks();
+        updateURL();
+    </script>
+</body>
+</html>
