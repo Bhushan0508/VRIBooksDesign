@@ -3,12 +3,13 @@ import { useEffect, useState } from 'react'
 import DOMPurify from 'dompurify'
 import styles from './BookDetails.module.css'
 import purchaseLinksMap from '../purchaseLinksMap.json'
-import { openShareUrl, getBookDetailUrl, copyBookLinkToClipboard, getBookDetailUrlWithParams } from '../utils/bookLinks'
+import { useBookNavigation } from '../hooks/useBookNavigation'
 
 function BookDetails () {
     const { sku } = useParams()
     const location = useLocation()
     const [searchParams] = useSearchParams()
+    const { getShareLinkWithTracking } = useBookNavigation()
     const [book, setBook] = useState(null)
     const [loading, setLoading] = useState(true)
     const [selectedImage, setSelectedImage] = useState(0)
@@ -134,18 +135,12 @@ function BookDetails () {
         return uniqueBooks;
     };
 
-    // Helper: Handle share with tracking parameters
+    // Helper: Handle share with tracking parameters using useBookNavigation
     const handleShare = (platform, book) => {
         console.log(`📤 Share clicked for ${platform}:`, book);
         
-        const trackingParams = {
-            utm_source: platform,
-            utm_medium: 'social',
-            utm_campaign: 'book_share'
-        };
-        
-        // Create share URL with tracking parameters
-        const shareUrl = getBookDetailUrlWithParams(book.SKU, trackingParams);
+        // Get share link with platform tracking from hook
+        const shareUrl = getShareLinkWithTracking(book.SKU, platform);
         console.log('🔗 Share URL:', shareUrl);
         
         const encodedUrl = encodeURIComponent(shareUrl);
@@ -179,17 +174,15 @@ function BookDetails () {
         }
     };
 
-    // Helper: Handle copy link with optional tracking parameters
+    // Helper: Handle copy link using useBookNavigation
     const handleCopyLink = async (withTracking = false) => {
         let urlToCopy;
         if (withTracking) {
-            urlToCopy = getBookDetailUrlWithParams(book.SKU, {
-                utm_source: 'copy_paste',
-                utm_medium: 'direct',
-                utm_campaign: 'book_share'
-            });
+            urlToCopy = getShareLinkWithTracking(book.SKU, 'copy_paste');
         } else {
-            urlToCopy = getBookDetailUrl(book.SKU);
+            // Copy basic link without tracking
+            const domain = window.location.origin;
+            urlToCopy = `${domain}/bookDetail/${book.SKU}`;
         }
         
         try {
@@ -426,7 +419,7 @@ function BookDetails () {
                                 <input 
                                     type="text" 
                                     readOnly 
-                                    value={getBookDetailUrl(book.SKU)}
+                                    value={getShareLinkWithTracking(book.SKU, 'direct')}
                                     className={styles.linkInput}
                                 />
                                 <button 

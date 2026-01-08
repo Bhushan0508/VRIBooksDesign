@@ -70,8 +70,51 @@ export const useBookNavigation = () => {
         return goToBook(sku, { ref: source });
     };
 
+    /**
+     * Generate shareable link for a book
+     * @param {string} sku - Book SKU
+     * @param {object} params - Optional query parameters
+     * @returns {string} Full URL with tracking parameters
+     */
+    const getShareLink = (sku, params = {}) => {
+        if (!sku) {
+            console.error('SKU is required');
+            return '';
+        }
+
+        const domain = window.location.origin;
+        let url = `${domain}/bookDetail/${sku}`;
+
+        // Add query parameters if provided
+        if (Object.keys(params).length > 0) {
+            const queryString = Object.entries(params)
+                .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+                .join('&');
+            url += `?${queryString}`;
+        }
+
+        console.log('📤 Generated Share Link:', url);
+        return url;
+    };
+
+    /**
+     * Generate shareable link with tracking for a specific platform
+     * @param {string} sku - Book SKU
+     * @param {string} platform - Platform name (whatsapp, facebook, twitter, email, linkedin)
+     * @returns {string} Full URL with platform tracking
+     */
+    const getShareLinkWithTracking = (sku, platform = 'direct') => {
+        return getShareLink(sku, {
+            utm_source: platform,
+            utm_medium: 'social',
+            utm_campaign: 'book_share'
+        });
+    };
+
     return {
         goToBook,
-        goToBookWithTracking
+        goToBookWithTracking,
+        getShareLink,
+        getShareLinkWithTracking
     };
 };
