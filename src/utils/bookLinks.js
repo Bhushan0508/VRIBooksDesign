@@ -2,8 +2,13 @@
  * Utility functions for generating book detail links
  */
 
-// Production domain
-const PRODUCTION_DOMAIN = 'https://www.vridhamma.org';
+// Get current domain (works in browser)
+const getCurrentDomain = () => {
+    if (typeof window !== 'undefined') {
+        return `${window.location.protocol}//${window.location.host}`;
+    }
+    return 'https://www.vridhamma.org'; // Fallback for production
+};
 
 /**
  * Get the full book detail page URL
@@ -12,7 +17,8 @@ const PRODUCTION_DOMAIN = 'https://www.vridhamma.org';
  */
 export const getBookDetailUrl = (sku) => {
     if (!sku) return '';
-    return `${PRODUCTION_DOMAIN}/bookDetail/${sku}`;
+    const domain = getCurrentDomain();
+    return `${domain}/bookDetail/${sku}`;
 };
 
 /**
