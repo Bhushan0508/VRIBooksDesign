@@ -242,19 +242,89 @@
 .previewSize{ color: #6b7280; font-size:0.95rem }
 
 .shareButtons{
-  margin-top: 10px;
+  margin-top: 15px;
   display:flex;
   gap:8px;
   align-items:center;
+  flex-wrap: wrap;
 }
 .shareBtn{
   background: transparent;
   border: 1px solid rgba(15,76,129,0.12);
   color: #0f4c81;
-  padding: 6px 10px;
+  padding: 8px 12px;
   border-radius: 6px;
   cursor: pointer;
   font-weight:600;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+.shareBtn:hover {
+  background: #e5f0ff;
+  border-color: #1f85da;
+}
+
+/* Share Section */
+.shareSection {
+  margin-top: 1.5rem;
+}
+
+.shareableLink {
+  margin-bottom: 1.5rem;
+}
+
+.shareableLink label {
+  display: block;
+  font-weight: 600;
+  color: #0f4c81;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.linkContainer {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.linkInput {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: #1f85da;
+  background: #f9fafb;
+  word-break: break-all;
+}
+
+.linkInput:focus {
+  outline: none;
+  border-color: #1f85da;
+  box-shadow: 0 0 0 3px rgba(31, 133, 218, 0.1);
+}
+
+.copyBtn {
+  background: #1f85da;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.copyBtn:hover {
+  background: #1567b3;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(31, 133, 218, 0.3);
+}
+
+.copyBtn:active {
+  transform: translateY(0);
 }
 
 .relatedSection{

@@ -11,6 +11,13 @@ export default defineConfig({
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, ''),
       }
-    }
+    },
+    // Enable SPA fallback routing
+    middlewareMode: false
+  },
+  // Configure build for proper SPA routing
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets'
   }
 })

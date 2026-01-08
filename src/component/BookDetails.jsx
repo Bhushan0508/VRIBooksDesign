@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import DOMPurify from 'dompurify'
 import styles from './BookDetails.module.css'
 import purchaseLinksMap from '../purchaseLinksMap.json'
-import { openShareUrl } from '../utils/bookLinks'
+import { openShareUrl, getBookDetailUrl, copyBookLinkToClipboard } from '../utils/bookLinks'
 
 function BookDetails () {
     const { sku } = useParams()
@@ -123,6 +123,16 @@ function BookDetails () {
     // Helper: Handle share
     const handleShare = (platform, book) => {
         openShareUrl(platform, book);
+    };
+
+    // Helper: Handle copy link
+    const handleCopyLink = async () => {
+        const success = await copyBookLinkToClipboard(book.SKU);
+        if (success) {
+            alert('Link copied to clipboard!');
+        } else {
+            alert('Failed to copy link');
+        }
     };
 
     // Helper: Handle image zoom on mouse move
@@ -338,13 +348,39 @@ function BookDetails () {
                         </>
                     )}
 
-                    {/* Share Buttons */}
-                    <div className={styles.shareButtons}>
-                        <span style={{fontWeight: 600, marginRight: '8px'}}>Share:</span>
-                        <button className={styles.shareBtn} onClick={() => handleShare('facebook', book)}>Facebook</button>
-                        <button className={styles.shareBtn} onClick={() => handleShare('twitter', book)}>Twitter</button>
-                        <button className={styles.shareBtn} onClick={() => handleShare('whatsapp', book)}>WhatsApp</button>
-                        <button className={styles.shareBtn} onClick={() => handleShare('email', book)}>Email</button>
+                    {/* Share Section with URL */}
+                    <div className={styles.shareSection}>
+                        <h2 className={styles.sectionHeading}>Share This Book</h2>
+                        
+                        {/* Shareable URL */}
+                        <div className={styles.shareableLink}>
+                            <label>Shareable Link:</label>
+                            <div className={styles.linkContainer}>
+                                <input 
+                                    type="text" 
+                                    readOnly 
+                                    value={getBookDetailUrl(book.SKU)}
+                                    className={styles.linkInput}
+                                />
+                                <button 
+                                    className={styles.copyBtn}
+                                    onClick={handleCopyLink}
+                                    title="Copy link to clipboard"
+                                >
+                                    📋 Copy
+                                </button>
+                            </div>
+                        </div>
+                        
+                        {/* Share Buttons */}
+                        <div className={styles.shareButtons}>
+                            <span style={{fontWeight: 600, marginRight: '8px', display: 'block', marginBottom: '8px'}}>Share on:</span>
+                            <button className={styles.shareBtn} onClick={() => handleShare('facebook', book)}>📱 Facebook</button>
+                            <button className={styles.shareBtn} onClick={() => handleShare('twitter', book)}>𝕏 Twitter</button>
+                            <button className={styles.shareBtn} onClick={() => handleShare('whatsapp', book)}>💬 WhatsApp</button>
+                            <button className={styles.shareBtn} onClick={() => handleShare('email', book)}>✉️ Email</button>
+                            <button className={styles.shareBtn} onClick={() => handleShare('linkedin', book)}>in LinkedIn</button>
+                        </div>
                     </div>
                 </div>
 
