@@ -81,6 +81,44 @@ function BookDetails () {
             .slice(0, 6);
     };
 
+    // Helper: Extract base ISBN (remove format suffix like -Pf, -Eb)
+    const getBaseISBN = (isbn) => {
+        if (!isbn) return '';
+        // Normalize by removing hyphens and taking the main part
+        return isbn.replace(/[-\s]/g, '').trim();
+    };
+
+    // Helper: Extract base title (remove format and language info in parentheses)
+    const getBaseTitle = (title) => {
+        if (!title) return '';
+        return title.replace(/\s*\([^)]*\)\s*$/g, '').trim();
+    };
+
+    // Helper: Get available languages for current book (unique by language)
+    const getAvailableLanguages = (currentBook, allBooks) => {
+        // Match by author and similar base title (first word match)
+        const currentWords = getBaseTitle(currentBook.Title).toLowerCase().split(/\s+/);
+        const firstWord = currentWords[0];
+        
+        const sameBooks = allBooks.filter(b => {
+            const otherTitle = getBaseTitle(b.Title);
+            const otherWords = otherTitle.toLowerCase().split(/\s+/);
+            return b.Author === currentBook.Author && otherWords[0] === firstWord;
+        });
+        
+        // Remove duplicates by language, keeping only one per language
+        const languageMap = {};
+        sameBooks.forEach(book => {
+            if (book.Language && !languageMap[book.Language]) {
+                languageMap[book.Language] = book;
+            }
+        });
+        
+        const uniqueBooks = Object.values(languageMap);
+        uniqueBooks.sort((a, b) => (a.Language || '').localeCompare(b.Language || ''));
+        return uniqueBooks;
+    };
+
     // Helper: Handle share
     const handleShare = (platform, book) => {
         const url = encodeURIComponent(window.location.href);
@@ -176,6 +214,7 @@ function BookDetails () {
 
     const purchaseLinks = getPurchaseLinks(book.ISBN);
     const relatedBooks = getRelatedBooks(book, allBooks);
+    const availableLanguages = getAvailableLanguages(book, allBooks);
     const images = book.Images || [];
 
     return (
@@ -250,6 +289,25 @@ function BookDetails () {
                                 <tr>
                                     <td className={styles.metaKey}>Language</td>
                                     <td className={styles.metaValue}>{book.Language}</td>
+                                </tr>
+                            )}
+                            {availableLanguages.length > 1 && (
+                                <tr>
+                                    <td className={styles.metaKey}>Available in</td>
+                                    <td className={styles.metaValue}>
+                                        <div className={styles.languageTags}>
+                                            {availableLanguages.map((langBook, index) => (
+                                                <Link
+                                                    key={index}
+                                                    to={`/bookDetail/${langBook.SKU}`}
+                                                    className={`${styles.languageTag} ${langBook.SKU === book.SKU ? styles.active : ''}`}
+                                                    state={{ book: langBook, allBooks: allBooks }}
+                                                >
+                                                    {langBook.Language}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </td>
                                 </tr>
                             )}
                             {(book.PublishedOn || book.PublicationYear) && (
